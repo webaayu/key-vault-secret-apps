@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ratings App</title>
+</head>
+<body>
+    <h1>Ratings</h1>
+    <form action="/add" method="POST">
+        Name: <input type="text" name="name">
+        Rating: <input type="number" name="rating">
+        <input type="submit" value="Add">
+    </form>
+    <h2>Ratings List</h2>
+    <ul>
+        {% for rating in ratings %}
+        <li>{{ rating[1] }} - {{ rating[2] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
