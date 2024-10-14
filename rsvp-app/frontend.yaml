@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rsvp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rsvp
+  template:
+    metadata:
+      labels:
+        app: rsvp
+    spec:
+      containers:
+      - name: rsvp-app
+        image: teamcloudyuga/rsvpapp
+        env:
+        - name: MONGODB_HOST
+          value: mongodb
+        - name: TEXT1
+          valueFrom:
+            secretKeyRef:
+              name: rsvp-secrets
+              key: TEXT1                    # Name of the secret in Key Vault
+        - name: TEXT2
+          valueFrom:
+            secretKeyRef:
+              name: rsvp-secrets
+              key: TEXT2                     # Name of the secret in Key Vault
+        - name: COMPANY
+          valueFrom:
+            secretKeyRef:
+              name: rsvp-secrets
+              key: COMPANY                  # Name of the secret in Key Vault
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          periodSeconds: 30
+          timeoutSeconds: 1
+          initialDelaySeconds: 50
+        ports:
+        - containerPort: 5000
+          name: web-port
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "azure-keyvault-secrets-rsvp"   
+         
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rsvp-final
+  labels:
+    app: rsvp
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: web-port
+    protocol: TCP
+  selector:
+    app: rsvp
