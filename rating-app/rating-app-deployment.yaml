@@ -16,7 +16,6 @@ spec:
       containers:
       - name: rating-app
         image: cloudyugacontregistry.azurecr.io/rating-app:latest
-        #image: mjhea0/flask-kubernetes:latest
         ports:
         - containerPort: 5000
         env:
