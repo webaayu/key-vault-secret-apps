@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: cloudyugacontregistry.azurecr.io/custom-postgres-restricted:latest
+        image: cloudyugacontregistry.azurecr.io/custom-postgres-restricted:latest # pratikshahp/custom-postgres-restricted:latest
         env:
         - name: POSTGRES_USER
           valueFrom:
