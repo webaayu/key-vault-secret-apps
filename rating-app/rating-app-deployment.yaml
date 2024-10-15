@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: rating-app
-        image: cloudyugacontregistry.azurecr.io/rating-app:latest
+        image: cloudyugacontregistry.azurecr.io/rating-app:latest # pratikshahp/rating-app:latest
         ports:
         - containerPort: 5000
         env:
