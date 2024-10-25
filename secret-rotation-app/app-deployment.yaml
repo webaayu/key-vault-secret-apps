@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secret-rotation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secret-rotation
+  template:
+    metadata:
+      labels:
+        app: secret-rotation
+    spec:
+      containers:
+      - name: secret-rotation-app
+        image: pratikshahp/cy-secret-rotation-app:latest  # Updated image
+        env:
+        - name: LINK
+          value: "https://cloudyuga.guru/"
+        - name: TEXT1
+          valueFrom:
+            secretKeyRef:
+              name: my-secrets
+              key: TEXT1  # Name of the secret in Key Vault
+        - name: TEXT2
+          valueFrom:
+            secretKeyRef:
+              name: my-secrets
+              key: TEXT2  # Name of the secret in Key Vault
+        - name: LOGO
+          value: "https://raw.githubusercontent.com/cloudyuga/rsvpapp/master/static/cloudyuga.png"  # Static value for LOGO
+        - name: COMPANY
+          valueFrom:
+            secretKeyRef:
+              name: my-secrets
+              key: COMPANY  # Name of the secret in Key Vault
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+        ports:
+        - containerPort: 5000
+          name: web-port
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "azure-keyvault-secret-rotation"   
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: secret-rotation
+  labels:
+    app: secret-rotation
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: web-port
+    protocol: TCP
+  selector:
+    app: secret-rotation
